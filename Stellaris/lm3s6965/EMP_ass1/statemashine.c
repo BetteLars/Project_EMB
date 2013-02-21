@@ -20,21 +20,20 @@
 //
 //*****************************************************************************
 //Includes
-#include "inc\lm3s6965.h"
-#include "readkeys/readkeys.h"
-#include "statemashine.h"
-#include "binarycounter.h"
-#include "externalFunctions/itoa.h"
-
-#include "drivers/rit128x96x4.h"
-
-
+#include "inc/lm3s6965.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_sysctl.h"
-
+#include "inc/emp_type.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
+
+#include "drivers/rit128x96x4.h"
+#include "externalFunctions/itoa.h"
+#include "readkeys/readkeys.h"
+#include "statemashine.h"
+#include "binarycounter.h"
+
 //Defines
 #define mainCHARACTER_HEIGHT				( 9 )
 #define mainMAX_ROWS_128					( mainCHARACTER_HEIGHT * 14 )
@@ -46,7 +45,7 @@
 //! State definitions
 //! this is where to set where in the Menu its starts up when you power up the statemashine
 
-int TS_State = UPSTARTMENU;
+INT16U TS_State = UPSTARTMENU;
 
 char buffer[32];
 /* The SM does not know anything about the system. This way it can be tested on a
@@ -54,27 +53,33 @@ char buffer[32];
  */
 int statemashine( int event )
 {
-    int next_state = TS_State;
-    static signed char num = 0;
+	INT16U next_state = TS_State;
+    static INT8S num = 0;
 	//!there is 5 buttons to use in this statemashine its @param KEY?_EVENT_?
 	//! and under them is what happen if you push it... every case end on break;
 	switch( TS_State )
     {
 	case UPSTARTMENU:
+		//!turn on led on the board
+		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0, GPIO_PIN_0);
+		SimpleDelay(20000);
+		//!turn on led off the board
+		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0, 0);
 		switch (event)
 		{
 		case KEY0_EVENT_SELECT:
 			break;
 
 		case KEY1_EVENT_UP:
-			next_state = LED;
+			next_state = upMANUELLED;
 			break;
 
 		case KEY2_EVENT_DOWN:
-			next_state = MANUELLED;
+			next_state = downMANUELLED;
 			break;
 
 		case KEY3_EVENT_ENTER:
+			next_state = AUTOLED;
 			break;
 
 		case KEY4_EVENT_CANCEL:
@@ -83,7 +88,7 @@ int statemashine( int event )
 			break;
 		}
 		break;
-
+/*
 	case LED:
 		switch (event)
 		{
@@ -112,33 +117,8 @@ int statemashine( int event )
 			break;
 		}
 		break;
-	case AUTOLED:
-		num++;
-		switch (event)
-			{
-			case KEY0_EVENT_SELECT:
-				next_state = UPSTARTMENU;
-				break;
-
-			case KEY1_EVENT_UP:
-				break;
-
-			case KEY2_EVENT_DOWN:
-				break;
-
-			case KEY3_EVENT_ENTER:
-				next_state = MANUELLED;
-				break;
-
-			case KEY4_EVENT_CANCEL:
-				num = 0;
-				break;
-			default:
-				break;
-			}
-
-		break;
-	case MANUELLED:
+*/
+	case upMANUELLED:
 		switch (event)
 			{
 			case KEY0_EVENT_SELECT:
@@ -150,11 +130,68 @@ int statemashine( int event )
 				break;
 
 			case KEY2_EVENT_DOWN:
-				num--;
+				next_state = downMANUELLED;
 				break;
 
 			case KEY3_EVENT_ENTER:
 				next_state = AUTOLED;
+				break;
+
+			case KEY4_EVENT_CANCEL:
+				num = 0;
+				break;
+			default:
+				break;
+
+			}
+		break;
+	case downMANUELLED:
+		switch (event)
+			{
+			case KEY0_EVENT_SELECT:
+				next_state = UPSTARTMENU;
+				break;
+
+			case KEY1_EVENT_UP:
+				num--;
+				break;
+
+			case KEY2_EVENT_DOWN:
+				next_state = upMANUELLED;
+				break;
+
+			case KEY3_EVENT_ENTER:
+				next_state = AUTOLED;
+				break;
+
+			case KEY4_EVENT_CANCEL:
+				num = 0;
+				break;
+			default:
+				break;
+
+			}
+			break;
+
+	case AUTOLED:
+		num++;
+		SimpleDelay(1600000);
+
+		switch (event)
+			{
+			case KEY0_EVENT_SELECT:
+				next_state = UPSTARTMENU;
+				break;
+
+			case KEY1_EVENT_UP:
+				next_state = upMANUELLED;
+				break;
+
+			case KEY2_EVENT_DOWN:
+				next_state = downMANUELLED;
+				break;
+
+			case KEY3_EVENT_ENTER:
 				break;
 
 			case KEY4_EVENT_CANCEL:
@@ -197,24 +234,24 @@ return TS_State;
  * For simulating the SM a bunch of statements should be put here.
  */
 
-void OnEnter( int State)
+void OnEnter( State)
 {
 	RIT128x96x4Clear();
 }
 
-void OnExit( int State)
+void OnExit( State)
 {
 
 }
 
-void DoDisplay( int State, int button)
+void DoDisplay( State, button)
 {
 	switch(State)// to show menu display at start i set it here
 		{
 		case UPSTARTMENU:
-			RIT128x96x4StringDraw("LED Test",				2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw("ass1_LED",				2,	41, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" Binary counter",		2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw("AUTOLED Settings",		2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw("ass2_LED ",		2,	57, mainFULL_SCALE);
 			break;
 		case LED:
 			RIT128x96x4StringDraw("LED on  ",				2,	41, mainFULL_SCALE);
@@ -223,15 +260,21 @@ void DoDisplay( int State, int button)
 			RIT128x96x4StringDraw(" Cancel to Menu",		2,	65, mainFULL_SCALE);
 			break;
 		case AUTOLED:
-			RIT128x96x4StringDraw("AUTOLED on  ",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" ",			2,	41, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" AUTO LED Test",			2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw("AUTOLED off ", 			2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" ", 			2,	57, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
 			break;
-		case MANUELLED:
-			RIT128x96x4StringDraw("MANUEL on  ",			2,	41, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" MANUEL LED Test",			2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw("MANUEL off ", 			2,	57, mainFULL_SCALE);
+		case upMANUELLED:
+			RIT128x96x4StringDraw("+1",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" up_MANUEL LED Test",			2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw("down", 			2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
+			break;
+		case downMANUELLED:
+			RIT128x96x4StringDraw("UP",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" down_MANUEL LED Test",			2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw("-1", 			2,	57, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
 			break;
 		default:

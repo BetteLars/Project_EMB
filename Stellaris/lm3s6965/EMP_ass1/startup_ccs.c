@@ -54,6 +54,8 @@ extern unsigned long __STACK_TOP;
 //*****************************************************************************
 extern void lwIPEthernetIntHandler(void);
 extern void SysTickIntHandler(void);
+extern void EthernetIntHandler(void);
+extern void CANIntHandler(void);
 
 //*****************************************************************************
 //
@@ -81,7 +83,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
     IntDefaultHandler,                      // The PendSV handler
-    IntDefaultHandler,                      // The SysTick handler
+    IntDefaultHandler,                   // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C
@@ -121,11 +123,22 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // Timer 3 subtimer B
     IntDefaultHandler,                      // I2C1 Master and Slave
     IntDefaultHandler,                      // Quadrature Encoder 1
-    IntDefaultHandler,                      // CAN0
+    IntDefaultHandler,                       // CAN0
     IntDefaultHandler,                      // CAN1
     IntDefaultHandler,                      // CAN2
-    IntDefaultHandler,                      // Ethernet
-    IntDefaultHandler                       // Hibernate
+    IntDefaultHandler,                  // Ethernet
+    IntDefaultHandler,                       // Hibernate
+    IntDefaultHandler,                      // USB0
+    IntDefaultHandler,                      // PWM Generator 3
+    IntDefaultHandler,                      // uDMA Software Transfer
+    IntDefaultHandler,                      // uDMA Error
+    IntDefaultHandler,                      // ADC1 Sequence 0
+    IntDefaultHandler,                      // ADC1 Sequence 1
+    IntDefaultHandler,                      // ADC1 Sequence 2
+    IntDefaultHandler,                      // ADC1 Sequence 3
+    IntDefaultHandler,                      // I2S0
+    IntDefaultHandler,                      // External Bus Interface 0
+    IntDefaultHandler                       // GPIO Port J
 };
 
 //*****************************************************************************

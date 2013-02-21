@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "inc\lm3s6965.h"
+#include "inc/lm3s6965.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "inc/hw_sysctl.h"
@@ -26,10 +26,11 @@
 
 //include
 #include "drivers/rit128x96x4.h"
-#include "readkeys/readkeys.h"
-#include "statemashine.h"
 #include "drivers/F_PWM.h"
 #include "drivers/setADC.h"
+#include "inc/emp_type.h"
+#include "readkeys/readkeys.h"
+#include "statemashine.h"
 
 //!Setting up the Display
 #define mainCHARACTER_HEIGHT				( 9 )
@@ -43,16 +44,22 @@
 void initHW(void);
 
 //!Globel variables
-int event = NO_EVENT;//! Set key events to no event so it not flooting
+int event = NO_EVENT;//! Set key events to no event so it not "flooting"
 
 
-
+void SimpleDelay(time)
+{
+    //
+    // Delay cycles for 1 second
+    //
+    SysCtlDelay(16000000 / time);
+}
 //! With this setup it would seem like main() must be the first function in this file, otherwise
 //! the wrong function gets called on reset.
-int main(void)
+void main(void)
  {
-	volatile unsigned long ulLoop;
-	volatile int event;
+	volatile INT32U ulLoop;
+	volatile INT16U event;
 
 	//Hardware upstarts
 	initHW();
@@ -81,20 +88,22 @@ int main(void)
 	//
 	while (1)
 	{
+
 		// Statmashine function
 		// This is where a statemachine could be added
-		// event = GetKeyEvents();
-		statemashine(GetKeyEvents());
+		event = GetKeyEvents();
 
+		statemashine(event);
 		//all functions the
 
 	}
+
 }
 
 void initHW(void)
 {
-	volatile int event;
-	volatile unsigned long ulLoop;
+	volatile INT16U event;
+	volatile INT32U ulLoop;
 	//SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_8MHZ);
 	SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN | SYSCTL_XTAL_8MHZ);//set to use osc its better for pwm
 	//! Enable the ports
@@ -137,7 +146,5 @@ void initHW(void)
 	GPIO_PORTG_DATA_R |= 0x03;
 
 	// a short delay to ensure stable IO before running the rest of the program
-	for (ulLoop = 0; ulLoop < 200000; ulLoop++)
-	{
-	}
+	SimpleDelay(5)
 }
