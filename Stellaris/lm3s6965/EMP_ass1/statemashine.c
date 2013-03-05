@@ -56,6 +56,7 @@ int statemashine( int event, int press )
 {
 	INT16U next_state = TS_State;
     static INT8S num = 0;
+    static INT16U counter_timer = 0;
 	//!there is 5 buttons to use in this statemashine its @param KEY?_EVENT_?
 	//! and under them is what happen if you push it... every case end on break;
 	switch( TS_State )
@@ -114,63 +115,69 @@ int statemashine( int event, int press )
 		}
 		break;
 
-		case upMANUELLED:
-			switch (press)
-				{
-				case BE_SINGLE_PUSH:
-					num++;
-					break;
-
-				case BE_DOUBBLE_PUSH:
-					next_state = downMANUELLED;
-					break;
-
-				case BE_LONG_PUSH:
-					next_state = AUTOLED_up;
-					break;
-				default:
-					break;
-
-				}
-			break;
-		case downMANUELLED:
-			switch (press)
-				{
-				case BE_SINGLE_PUSH:
-					num--;
-					break;
-
-				case BE_DOUBBLE_PUSH:
-					next_state = upMANUELLED;
-					break;
-
-				case BE_LONG_PUSH:
-					next_state = AUTOLED_up;
-					break;
-				default:
-					break;
-
-				}
+	case upMANUELLED:
+		switch (press)
+			{
+			case BE_SINGLE_PUSH:
+				num++;
 				break;
-		case AUTOLED_up:
-			switch (press)
-				{
-				case BE_SINGLE_PUSH:
-					next_state = downMANUELLED;
-					break;
 
-				case BE_DOUBBLE_PUSH:
-					next_state = AUTOLED_down;
-					break;
+			case BE_DOUBBLE_PUSH:
+				next_state = downMANUELLED;
+				break;
 
-				case BE_LONG_PUSH:
-					next_state = UPSTARTMENU;
-					break;
-				default:
-					break;
-				}
+			case BE_LONG_PUSH:
+				next_state = AUTOLED_up;
+				break;
+			default:
+				break;
+
+			}
+		break;
+	case downMANUELLED:
+		switch (press)
+			{
+			case BE_SINGLE_PUSH:
+				num--;
+				break;
+
+			case BE_DOUBBLE_PUSH:
+				next_state = upMANUELLED;
+				break;
+
+			case BE_LONG_PUSH:
+				next_state = AUTOLED_up;
+				break;
+			default:
+				break;
+
+			}
 			break;
-		case AUTOLED_down:
+	case AUTOLED_up:
+		counter_timer++;
+		switch (press)
+			{
+			case BE_SINGLE_PUSH:
+				next_state = downMANUELLED;
+				break;
+
+			case BE_DOUBBLE_PUSH:
+				next_state = AUTOLED_down;
+				break;
+
+			case BE_LONG_PUSH:
+				next_state = UPSTARTMENU;
+				break;
+			default:
+				break;
+			}
+		while(counter_timer == 20)
+		{
+			num++;
+			counter_timer = 0;
+		}
+		break;
+	case AUTOLED_down:
 			switch (press)
 				{
 				case BE_SINGLE_PUSH:
