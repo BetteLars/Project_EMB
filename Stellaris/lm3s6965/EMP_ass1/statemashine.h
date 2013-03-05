@@ -8,13 +8,13 @@
 #ifndef STATEMASHINE_H_
 #define STATEMASHINE_H_
 //! This is the @param enum of the states are so need a state more here is to make it
-enum states { UPSTARTMENU, LED, AUTOLED, upMANUELLED,downMANUELLED, MAXSTATES };
+enum states { UPSTARTMENU, LED, AUTOLED_up, AUTOLED_down, upMANUELLED,downMANUELLED, MAXSTATES };
 
 // forward function declarations
 void DoDisplay( int, int );
 void OnEnter( int);
 void OnExit( int);
-int statemashine(int);
+int statemashine(int, int);
 
 //------------------------------
 

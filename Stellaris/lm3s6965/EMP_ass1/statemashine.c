@@ -33,7 +33,8 @@
 #include "readkeys/readkeys.h"
 #include "statemashine.h"
 #include "binarycounter.h"
-
+#include "button.h"
+#include "events.h"
 //Defines
 #define mainCHARACTER_HEIGHT				( 9 )
 #define mainMAX_ROWS_128					( mainCHARACTER_HEIGHT * 14 )
@@ -51,7 +52,7 @@ char buffer[32];
 /* The SM does not know anything about the system. This way it can be tested on a
  * different C compiler very easily.
  */
-int statemashine( int event )
+int statemashine( int event, int press )
 {
 	INT16U next_state = TS_State;
     static INT8S num = 0;
@@ -60,11 +61,6 @@ int statemashine( int event )
 	switch( TS_State )
     {
 	case UPSTARTMENU:
-		//!turn on led on the board
-		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0, GPIO_PIN_0);
-		SimpleDelay(20000);
-		//!turn on led off the board
-		GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0, 0);
 		switch (event)
 		{
 		case KEY0_EVENT_SELECT:
@@ -79,7 +75,7 @@ int statemashine( int event )
 			break;
 
 		case KEY3_EVENT_ENTER:
-			next_state = AUTOLED;
+			next_state = LED;
 			break;
 
 		case KEY4_EVENT_CANCEL:
@@ -88,7 +84,7 @@ int statemashine( int event )
 			break;
 		}
 		break;
-/*
+
 	case LED:
 		switch (event)
 		{
@@ -117,92 +113,84 @@ int statemashine( int event )
 			break;
 		}
 		break;
-*/
-	case upMANUELLED:
-		switch (event)
-			{
-			case KEY0_EVENT_SELECT:
-				next_state = UPSTARTMENU;
-				break;
 
-			case KEY1_EVENT_UP:
-				num++;
-				break;
+		case upMANUELLED:
+			switch (press)
+				{
+				case BE_SINGLE_PUSH:
+					num++;
+					break;
 
-			case KEY2_EVENT_DOWN:
-				next_state = downMANUELLED;
-				break;
+				case BE_DOUBBLE_PUSH:
+					next_state = downMANUELLED;
+					break;
 
-			case KEY3_EVENT_ENTER:
-				next_state = AUTOLED;
-				break;
+				case BE_LONG_PUSH:
+					next_state = AUTOLED_up;
+					break;
+				default:
+					break;
 
-			case KEY4_EVENT_CANCEL:
-				num = 0;
-				break;
-			default:
-				break;
-
-			}
-		break;
-	case downMANUELLED:
-		switch (event)
-			{
-			case KEY0_EVENT_SELECT:
-				next_state = UPSTARTMENU;
-				break;
-
-			case KEY1_EVENT_UP:
-				num--;
-				break;
-
-			case KEY2_EVENT_DOWN:
-				next_state = upMANUELLED;
-				break;
-
-			case KEY3_EVENT_ENTER:
-				next_state = AUTOLED;
-				break;
-
-			case KEY4_EVENT_CANCEL:
-				num = 0;
-				break;
-			default:
-				break;
-
-			}
+				}
 			break;
+		case downMANUELLED:
+			switch (press)
+				{
+				case BE_SINGLE_PUSH:
+					num--;
+					break;
 
-	case AUTOLED:
-		num++;
-		SimpleDelay(1600000);
+				case BE_DOUBBLE_PUSH:
+					next_state = upMANUELLED;
+					break;
 
-		switch (event)
-			{
-			case KEY0_EVENT_SELECT:
-				next_state = UPSTARTMENU;
-				break;
+				case BE_LONG_PUSH:
+					next_state = AUTOLED_up;
+					break;
+				default:
+					break;
 
-			case KEY1_EVENT_UP:
-				next_state = upMANUELLED;
+				}
 				break;
+		case AUTOLED_up:
+			switch (press)
+				{
+				case BE_SINGLE_PUSH:
+					next_state = downMANUELLED;
+					break;
 
-			case KEY2_EVENT_DOWN:
-				next_state = downMANUELLED;
-				break;
+				case BE_DOUBBLE_PUSH:
+					next_state = AUTOLED_down;
+					break;
 
-			case KEY3_EVENT_ENTER:
-				break;
+				case BE_LONG_PUSH:
+					next_state = UPSTARTMENU;
+					break;
+				default:
+					break;
+				}
+			break;
+		case AUTOLED_down:
+			switch (press)
+				{
+				case BE_SINGLE_PUSH:
+					next_state = upMANUELLED ;
+					break;
 
-			case KEY4_EVENT_CANCEL:
-				num = 0;
-				break;
-			default:
-				break;
-			}
-		break;
-	default:
-		break;
+				case BE_DOUBBLE_PUSH:
+					next_state = AUTOLED_up;
+					break;
+
+				case BE_LONG_PUSH:
+					next_state = UPSTARTMENU;
+					break;
+				default:
+					break;
+				}
+			num++;
+			break;
+		default:
+			break;
 	// The program should never get here !
     }
 
@@ -251,7 +239,7 @@ void DoDisplay( State, button)
 		case UPSTARTMENU:
 			RIT128x96x4StringDraw("ass1_LED",				2,	41, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" Binary counter",		2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw("ass2_LED ",		2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" ",		2,	57, mainFULL_SCALE);
 			break;
 		case LED:
 			RIT128x96x4StringDraw("LED on  ",				2,	41, mainFULL_SCALE);
@@ -259,9 +247,15 @@ void DoDisplay( State, button)
 			RIT128x96x4StringDraw("LED off ", 				2,	57, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" Cancel to Menu",		2,	65, mainFULL_SCALE);
 			break;
-		case AUTOLED:
+		case AUTOLED_up:
 			RIT128x96x4StringDraw(" ",			2,	41, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" AUTO LED Test",			2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" AUTO down LED",			2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" ", 			2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
+			break;
+		case AUTOLED_down:
+			RIT128x96x4StringDraw(" ",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" AUTO up LED",			2,	49, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" ", 			2,	57, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
 			break;

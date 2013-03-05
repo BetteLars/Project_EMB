@@ -31,7 +31,7 @@
 #include "inc/emp_type.h"
 #include "readkeys/readkeys.h"
 #include "statemashine.h"
-
+#include "button.h"
 //!Setting up the Display
 #define mainCHARACTER_HEIGHT				( 9 )
 #define mainMAX_ROWS_128					( mainCHARACTER_HEIGHT * 14 )
@@ -60,15 +60,15 @@ void main(void)
  {
 	volatile INT32U ulLoop;
 	volatile INT16U event;
-
+	volatile INT16U push;
 	//Hardware upstarts
 	initHW();
 
 	//! Start the OLED display and write a message on it
 	RIT128x96x4Init(ulSSI_FREQUENCY);
-	RIT128x96x4StringDraw("EMP", 15, 42, mainFULL_SCALE);
-	RIT128x96x4StringDraw("enter the code.....", 5, 49, mainFULL_SCALE);
-	RIT128x96x4StringDraw("SW2 SW3 SW4 SW5 SW6", 15, 57, mainFULL_SCALE);
+	RIT128x96x4StringDraw("EMP", 					15, 42, mainFULL_SCALE);
+	RIT128x96x4StringDraw("enter the code.....",	 5, 49, mainFULL_SCALE);
+	RIT128x96x4StringDraw("SW2 SW3 SW4 SW5 SW6", 		15, 57, mainFULL_SCALE);
 	// Entry Password see under inputs
 	// Wait for the select key to be pressed
 	while (GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_1));
@@ -92,8 +92,8 @@ void main(void)
 		// Statmashine function
 		// This is where a statemachine could be added
 		event = GetKeyEvents();
-
-		statemashine(event);
+		  push = select_button();
+		statemashine(event , push);
 		//all functions the
 
 	}
@@ -146,5 +146,5 @@ void initHW(void)
 	GPIO_PORTG_DATA_R |= 0x03;
 
 	// a short delay to ensure stable IO before running the rest of the program
-	SimpleDelay(5)
+	SimpleDelay(5);
 }
