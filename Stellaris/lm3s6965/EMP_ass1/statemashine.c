@@ -166,35 +166,42 @@ int statemashine( int event, int press )
 				break;
 
 			case BE_LONG_PUSH:
+				num = 0;
 				next_state = UPSTARTMENU;
 				break;
 			default:
 				break;
 			}
-		while(counter_timer == 20)
+		if(counter_timer == 20)
 		{
 			num++;
 			counter_timer = 0;
 		}
 		break;
 	case AUTOLED_down:
-			switch (press)
-				{
-				case BE_SINGLE_PUSH:
-					next_state = upMANUELLED ;
-					break;
+		counter_timer++;
+		switch (press)
+			{
+			case BE_SINGLE_PUSH:
+				next_state = upMANUELLED ;
+				break;
 
-				case BE_DOUBBLE_PUSH:
-					next_state = AUTOLED_up;
-					break;
+			case BE_DOUBBLE_PUSH:
+				next_state = AUTOLED_up;
+				break;
 
-				case BE_LONG_PUSH:
-					next_state = UPSTARTMENU;
-					break;
-				default:
-					break;
-				}
-			num++;
+			case BE_LONG_PUSH:
+				num = 0;
+				next_state = UPSTARTMENU;
+				break;
+			default:
+				break;
+			}
+		if(counter_timer == 20)
+		{
+			num--;
+			counter_timer = 0;
+		}
 			break;
 		default:
 			break;
@@ -246,7 +253,7 @@ void DoDisplay( State, button)
 		case UPSTARTMENU:
 			RIT128x96x4StringDraw("ass1_LED",				2,	41, mainFULL_SCALE);
 			RIT128x96x4StringDraw(" Binary counter",		2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" ",		2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" ",						2,	57, mainFULL_SCALE);
 			break;
 		case LED:
 			RIT128x96x4StringDraw("LED on  ",				2,	41, mainFULL_SCALE);
@@ -255,28 +262,28 @@ void DoDisplay( State, button)
 			RIT128x96x4StringDraw(" Cancel to Menu",		2,	65, mainFULL_SCALE);
 			break;
 		case AUTOLED_up:
-			RIT128x96x4StringDraw(" ",			2,	41, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" AUTO down LED",			2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" ", 			2,	57, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" AUTO LED up",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw("one press to stop",		2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" dobbel = down",			2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" long press auto",		2,	65, mainFULL_SCALE);
 			break;
 		case AUTOLED_down:
-			RIT128x96x4StringDraw(" ",			2,	41, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" AUTO up LED",			2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" ", 			2,	57, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" AUTO LED down",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw("one press to stop",		2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw("dobbel = up",						2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw("long press auto",		2,	65, mainFULL_SCALE);
 			break;
 		case upMANUELLED:
-			RIT128x96x4StringDraw("+1",			2,	41, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" up_MANUEL LED Test",			2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw("down", 			2,	57, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" up LED Test",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw("+1",						2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw("dobbel = down", 			2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw("long press auto",		2,	65, mainFULL_SCALE);
 			break;
 		case downMANUELLED:
-			RIT128x96x4StringDraw("UP",			2,	41, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" down_MANUEL LED Test",			2,	49, mainFULL_SCALE);
-			RIT128x96x4StringDraw("-1", 			2,	57, mainFULL_SCALE);
-			RIT128x96x4StringDraw(" Select to Menu",		2,	65, mainFULL_SCALE);
+			RIT128x96x4StringDraw(" down LED Test",			2,	41, mainFULL_SCALE);
+			RIT128x96x4StringDraw("-1",						2,	49, mainFULL_SCALE);
+			RIT128x96x4StringDraw("dobbel = up", 			2,	57, mainFULL_SCALE);
+			RIT128x96x4StringDraw("long press auto",		2,	65, mainFULL_SCALE);
 			break;
 		default:
 			break;
